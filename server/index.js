@@ -11,11 +11,44 @@ mongoose.connect(mongooseUri)
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    posts: [Number]
+    posts: [String]
 });
 const User = mongoose.model('User', userSchema);
 
+const postSchema = new mongoose.Schema({
+    username: String,
+    place: String,
+    time: String,
+    airType: String,
+    smell: String,
+    id: String
+});
+const Post = mongoose.model('Post', postSchema);
+
+import { v4 as uuidv4 } from 'uuid';
 import {sha256} from 'crypto-hash';
+
+app.all("/api/addPost", async (req, res) => {
+    try {
+        const password = await sha256(req.body.password)
+        const dateObject = new Date();
+        let date = dateObject.toUTCString();
+        const ID = uuidv4() 
+        if(await User.findOne({username: req.body.username, password: password})) {
+            const post = new Post({username: req.body.username, place: req.body.place, time: date, airType: req.body.airType, smell: req.body.smell, id: ID})
+            post.save()
+            await User.findOneAndUpdate({username: req.body.username, password: password}, {$push: {posts: ID}})
+            res.send({"error": false, "message": "sucesss", "response": "sucess", "id": ID})
+        }
+        else {
+            res.send({"error": false, "message": "Hey, you don't know your password", "response": "badPassword"})
+        }
+    }
+    catch(err) {
+        console.log(err)
+        res.send({"error": false, "message": "You made an error, but we won't tell you what you did.", "response": "error"})
+    }
+})
 
 app.all("/api/createUser", async (req, res) => {
     try {
@@ -50,7 +83,17 @@ app.all("/api/doIKnowMyPassword", async (req, res) => {
         }
     }
     catch(err) {
-        res.send({"error": true, "message": "You made an error, but we won't tell you what."})
+        res.send({"error": true, "message": "You made an error, but we won't tell you what you did.", "response": "error"})
+    }
+})
+
+app.all("/api/user/:username", async (req, res) => {
+    try {
+        const username = req.params.username
+        let response = await User.findOne({username: username}, {password: 0, _id: 0, __v: 0})
+    }
+    catch(err) {
+        res.send({"error": false, "message": "You made an error, but we won't tell you what you did.", "response": "error"}) 
     }
 })
 
