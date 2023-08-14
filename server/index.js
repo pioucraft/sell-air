@@ -41,12 +41,12 @@ app.all("/api/addPost", async (req, res) => {
             res.send({"error": false, "message": "sucesss", "response": "sucess", "id": ID})
         }
         else {
-            res.send({"error": false, "message": "Hey, you don't know your password", "response": "badPassword"})
+            res.send({"error": true, "message": "Hey, you don't know your password", "response": "badPassword"})
         }
     }
     catch(err) {
         console.log(err)
-        res.send({"error": false, "message": "You made an error, but we won't tell you what you did.", "response": "error"})
+        res.send({"error": true, "message": "You made an error, but we won't tell you what you did.", "response": "error"})
     }
 })
 
@@ -55,7 +55,7 @@ app.all("/api/createUser", async (req, res) => {
         const username = req.body.username
         const password = await sha256(req.body.password)
         if(await User.findOne({"username": username}) != null) {
-            res.send({"error": false, "message": "This username already exists.", "response" : "alreadyUsername"})
+            res.send({"error": true, "message": "This username already exists.", "response" : "alreadyUsername"})
         }
         else {
             const user = new User({username: username, password: password})
@@ -91,9 +91,30 @@ app.all("/api/user/:username", async (req, res) => {
     try {
         const username = req.params.username
         let response = await User.findOne({username: username}, {password: 0, _id: 0, __v: 0})
+        res.send({"error": false, "message": "sucess", "response": response})
     }
     catch(err) {
-        res.send({"error": false, "message": "You made an error, but we won't tell you what you did.", "response": "error"}) 
+        res.send({"error": true, "message": "You made an error, but we won't tell you what you did.", "response": "error"}) 
+    }
+})
+
+app.get("/api/post/:postId", async (req, res) => {
+    try {
+        let response = await Post.findOne({id: req.params.postId}, {_id: 0, __v: 0})
+        res.send({"error": false, "message": "sucess", "response": response})
+    }
+    catch(err) {
+        res.send({"error": true, "message": "Something went wrong.", "message": "error"})
+    }
+})
+
+app.get("/api/search/:query", async (req, res) => {
+    try {
+        let response = await Post.find({$text:{$search: req.params.query}}) 
+        res.send({"error": false, "message": "sucess", "response": response})
+    }
+    catch(err) {
+        res.send({"error": true, "message": "Something went wrong.", "message": "error"})
     }
 })
 
