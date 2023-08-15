@@ -21,7 +21,9 @@ const postSchema = new mongoose.Schema({
     time: String,
     airType: String,
     smell: String,
-    id: String
+    description: String,
+    id: String,
+    email: String
 });
 const Post = mongoose.model('Post', postSchema);
 
@@ -30,12 +32,25 @@ import {sha256} from 'crypto-hash';
 
 app.all("/api/addPost", async (req, res) => {
     try {
+        if(req.body.place.length > 40 || req.body.airType.length > 25 || req.body.smell.length > 25 || req.body.description.length > 100 || req.body.email.length > 40) {
+            throw Error
+        }
+        req.body.place = req.body.place.replaceAll(">", "")
+        req.body.airType = req.body.airType.replaceAll(">", "")
+        req.body.smell = req.body.smell.replaceAll(">", "")
+        req.body.description = req.body.description.replaceAll(">", "")
+        req.body.email = req.body.email.replaceAll(">", "")
+        req.body.place = req.body.place.replaceAll("<", "")
+        req.body.airType = req.body.airType.replaceAll("<", "")
+        req.body.smell = req.body.smell.replaceAll("<", "")
+        req.body.description = req.body.description.replaceAll("<", "")
+        req.body.email = req.body.email.replaceAll("<", "")
         const password = await sha256(req.body.password)
         const dateObject = new Date();
         let date = dateObject.toUTCString();
         const ID = uuidv4() 
         if(await User.findOne({username: req.body.username, password: password})) {
-            const post = new Post({username: req.body.username, place: req.body.place, time: date, airType: req.body.airType, smell: req.body.smell, id: ID})
+            const post = new Post({description: req.body.description, username: req.body.username, place: req.body.place, time: date, airType: req.body.airType, email: req.body.email, smell: req.body.smell, id: ID})
             post.save()
             await User.findOneAndUpdate({username: req.body.username, password: password}, {$push: {posts: ID}})
             res.send({"error": false, "message": "sucesss", "response": "sucess", "id": ID})
@@ -52,6 +67,10 @@ app.all("/api/addPost", async (req, res) => {
 
 app.all("/api/createUser", async (req, res) => {
     try {
+        
+        if(req.body.username.length > 15) { 
+            throw Error
+        }
         const username = req.body.username
         const password = await sha256(req.body.password)
         if(await User.findOne({"username": username}) != null) {
