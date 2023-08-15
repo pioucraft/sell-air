@@ -8,8 +8,8 @@
 <body>
     <div id="top">
         <h1 id="top-title">Gougoule Aero</h1>
-        <input id="top-search" type="search" placeholder="Air that smells like potatoes.">
-        <button id="top-searchButton">Search</button>
+        <input id="top-search" type="search" onchange="search()" placeholder="Air that smells like potatoes.">
+        <button id="top-searchButton" onclick="search()">Search</button>
     </div>
     <div id="middle">
         <div id="middle-posts"></div>
@@ -17,7 +17,7 @@
             <button id="middle-account-login" onclick="location.href = 'login.html'">Register / Log in</button>
         </div>
     </div>
-    <div id="bottom"></div>
+    <div id="bottom"><a href="https://gougoule.ch">Gougoule.ch</a></div>
     <script src="js/index.js"></script>
 </body>
 </html>

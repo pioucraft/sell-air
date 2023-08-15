@@ -4,7 +4,7 @@ fetch(`${fetchUrl}/api/search/air`).then(data => data.json()).then(data => {
     console.log(data)
     for(let i=0; i<20; i++) {
         let post = data["response"][i]
-        document.getElementById("middle-posts").innerHTML += `<button class="post" onclick="location.href = 'post.html?p=${post["id"]}"><h2>${post["place"]}</h2><h2>${post["airType"]}</h2><h2>${post["smell"]}</h2></button>`
+        document.getElementById("middle-posts").innerHTML += `<button class="post" onclick="location.href = 'post.html?p=${post["id"]}'"><h2>${post["place"]}</h2><h2>${post["airType"]}</h2><h2>${post["smell"]}</h2></button>`
     }
 })
 
@@ -14,7 +14,7 @@ if(getCookie("password") != "") {
     fetch(`${fetchUrl}/api/doIKnowMyPassword`, {method: "POST", body: `{"username": "${username}", "password": "${password}"}`, headers: {"Content-Type": "application/json"}}).then(data => data.json()).then(data => {
         console.log(data)
         if(data["response"] == true) {
-            document.getElementById("middle-account").innerHTML = `<h2>Connected with the account ${username}</h2><button onclick="logout()">Logout</button><button onclick="location.href = 'addPost.html'">Post somethin'<button>`
+            document.getElementById("middle-account").innerHTML = `<h2>Connected with the account ${username}</h2><button onclick="logout()">Logout</button><button onclick="location.href = 'addPost.html'">Post somethin'</button>`
         }
         else {
             logout()
@@ -49,4 +49,9 @@ function getCookie(cname) {
     }
   }
   return "";
+}
+
+function search() {
+    let query = document.getElementById("top-search").value
+    location.href = `search.html?q=${query}`
 }
